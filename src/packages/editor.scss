@@ -93,6 +93,6 @@
   // focus时给模拟元素添加样式
   &::after {
     content: "";
-    border: 1px dashed red;
+    border: 2px dashed red;
   }
 }

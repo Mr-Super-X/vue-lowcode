@@ -35,7 +35,8 @@ export function useFocus(data, callback) {
         clearBlockFocus(); // 每次选中前先清空其他元素的选中状态
         block.focus = true;
       } else {
-        block.focus = false;
+        // 不能在这里置为false，否则会导致鼠标点选一次松开后无法再拖动组件
+        // block.focus = false;
       }
     }
 
