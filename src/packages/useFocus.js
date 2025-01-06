@@ -46,7 +46,10 @@ export function useFocus(data, callback) {
 
   // 点击容器区域取消容器内渲染组件的选中状态
   const containerMousedown = (e) => {
-    clearBlockFocus();
+    // 优化体验，没有按住ctrl键点击内容区时才清空组件选中状态，防止误点导致前面多选的状态都被清空
+    if (!e.ctrlKey) {
+      clearBlockFocus();
+    }
   };
 
   // 返回内容
