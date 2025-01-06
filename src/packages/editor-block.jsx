@@ -39,7 +39,7 @@ export default defineComponent({
       // 拿到要渲染的真实组件
       const RenderComponent = component.render();
       return (
-        <div className="editor-block" style={blockStyles.value} ref={blockRef}>
+        <div class="editor-block" style={blockStyles.value} ref={blockRef}>
           {/* 这里不能使用标签形式来渲染，如<RenderComponent /> */}
           {RenderComponent}
         </div>

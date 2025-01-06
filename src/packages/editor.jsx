@@ -36,16 +36,29 @@ export default defineComponent({
     // 容器ref
     const containerRef = ref();
 
+    // 1.菜单拖拽功能
     const { dragstart, dragend } = useMenuDragger(containerRef, data);
+    // 2.实现内容区组件获取焦点
+    // 3.实现拖拽内容区多个元素
 
+    const blockMousedown = (e, block) => {
+      e.preventDefault();
+      e.stopPropagation();
+      // 在block上规划一个属性 focus 获取焦点后将focus属性改为true，否则就是false
+      if (!block.focus) {
+        block.focus = true;
+      } else {
+        block.focus = false;
+      }
+    };
     return () => (
-      <div className="editor">
+      <div class="editor">
         {/* 负责左侧预览组件 */}
-        <div className="editor-left">
+        <div class="editor-left">
           {/* 根据注册列表渲染预览内容，实现h5的拖拽 */}
           {config.componentList.map((component) => (
             <div
-              className="editor-left-item"
+              class="editor-left-item"
               draggable
               onDragstart={(e) => dragstart(e, component)}
               onDragend={dragend}
@@ -56,20 +69,24 @@ export default defineComponent({
           ))}
         </div>
         {/* 负责顶部菜单栏 */}
-        <div className="editor-top">菜单栏</div>
-        <div className="editor-right">右侧属性区</div>
-        <div className="editor-container">
+        <div class="editor-top">菜单栏</div>
+        <div class="editor-right">右侧属性区</div>
+        <div class="editor-container">
           {/* 负责产生滚动条 */}
-          <div className="editor-container-canvas">
+          <div class="editor-container-canvas">
             {/* 负责产生内容区 */}
             <div
-              className="editor-container-canvas__content"
+              class="editor-container-canvas__content"
               style={containerStyles.value}
               ref={containerRef}
             >
               {/* 动态渲染所有内容块 */}
               {data.value.blocks.map((block) => (
-                <EditorBlock block={block}></EditorBlock>
+                <EditorBlock
+                  block={block}
+                  class={block.focus ? "editor-block-focus" : ""}
+                  onMousedown={(e) => blockMousedown(e, block)}
+                ></EditorBlock>
               ))}
             </div>
           </div>

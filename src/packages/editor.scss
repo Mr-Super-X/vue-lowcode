@@ -40,7 +40,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: rgba($color: #ccc, $alpha: 0.5);
+        background-color: rgba($color: #ccc, $alpha: 0.2);
         z-index: 100;
       }
     }
@@ -77,4 +77,22 @@
 
 .editor-block {
   position: absolute;
+
+  // 模拟元素浮层
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+}
+
+.editor-block-focus {
+  // focus时给模拟元素添加样式
+  &::after {
+    content: "";
+    border: 1px dashed red;
+  }
 }
