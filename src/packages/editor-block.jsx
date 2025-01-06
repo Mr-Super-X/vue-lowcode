@@ -1,4 +1,4 @@
-import { computed, defineComponent } from "vue";
+import { computed, defineComponent, inject } from "vue";
 
 export default defineComponent({
   props: {
@@ -15,10 +15,20 @@ export default defineComponent({
       zIndex: `${props.block.zIndex}`,
     }));
 
-    return () => (
-      <div className="editor-block" style={blockStyles.value}>
-        这是一个代码块
-      </div>
-    );
+    // 读取组件config配置
+    const config = inject("config");
+
+    return () => {
+      // 找到组件
+      const component = config.componentMap[props.block.key];
+      // 拿到要渲染的真实组件
+      const RenderComponent = component.render();
+      return (
+        <div className="editor-block" style={blockStyles.value}>
+          {/* 这里不能使用标签形式来渲染，如<RenderComponent /> */}
+          {RenderComponent}
+        </div>
+      );
+    };
   },
 });

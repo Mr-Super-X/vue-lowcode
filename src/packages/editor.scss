@@ -13,6 +13,37 @@
 
   &-left {
     left: 0;
+    &-item {
+      position: relative;
+      width: 250px;
+      min-height: 100px;
+      margin: 20px auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #fff;
+      padding: 20px;
+      box-sizing: border-box;
+      cursor: move;
+      > span {
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: royalblue;
+      }
+
+      /* 左侧透明蒙层，盖住预览组件，阻止默认行为 */
+      &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba($color: #ccc, $alpha: 0.5);
+        z-index: 100;
+      }
+    }
   }
 
   &-right {
