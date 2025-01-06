@@ -1,5 +1,7 @@
 import { ref, computed, defineComponent, inject } from "vue";
 import { useMenuDragger } from "./useMenuDragger";
+import { useFocus } from "./useFocus";
+import { useBlockDragger } from "./useBlockDragger";
 import deepcopy from "deepcopy";
 
 // 引入样式
@@ -38,19 +40,19 @@ export default defineComponent({
 
     // 1.菜单拖拽功能
     const { dragstart, dragend } = useMenuDragger(containerRef, data);
-    // 2.实现内容区组件获取焦点
-    // 3.实现拖拽内容区多个元素
 
-    const blockMousedown = (e, block) => {
-      e.preventDefault();
-      e.stopPropagation();
-      // 在block上规划一个属性 focus 获取焦点后将focus属性改为true，否则就是false
-      if (!block.focus) {
-        block.focus = true;
-      } else {
-        block.focus = false;
+    // 2.实现内容区组件获取焦点，选中后可能立即拖拽，回调函数会在鼠标按下时调用
+    const { containerMousedown, blockMousedown, focusData } = useFocus(
+      data,
+      (e) => {
+        // 获取焦点后进行拖拽
+        mousedown(e);
       }
-    };
+    );
+
+    // 3.实现拖拽内容区组件功能
+    const { mousedown } = useBlockDragger(focusData);
+
     return () => (
       <div class="editor">
         {/* 负责左侧预览组件 */}
@@ -79,6 +81,7 @@ export default defineComponent({
               class="editor-container-canvas__content"
               style={containerStyles.value}
               ref={containerRef}
+              onMousedown={containerMousedown}
             >
               {/* 动态渲染所有内容块 */}
               {data.value.blocks.map((block) => (
