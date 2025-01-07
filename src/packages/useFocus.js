@@ -1,6 +1,14 @@
-import { computed } from "vue";
+import { ref, computed } from "vue";
 
 export function useFocus(data, callback) {
+  // 拿到最后一个选中的节点是谁，用于生成对齐辅助线，初始值-1表示没有被选中的
+  const selectLastIdx = ref(-1);
+
+  // 通过索引拿到最后一个点击的块是谁
+  const lastSelectBlock = computed(
+    () => data.value.blocks[selectLastIdx.value]
+  );
+
   // 计算容器内选中和未选中的组件
   // 多选整体移动位置时需要知道具体移动哪些组件
   const focusData = computed(() => {
@@ -22,7 +30,7 @@ export function useFocus(data, callback) {
   // 3.实现拖拽内容区多个元素
   // 点击容器内的渲染组件，添加选中状态
   // 在block上规划一个属性 focus 获取焦点后将focus属性改为true，否则就是false
-  const blockMousedown = (e, block) => {
+  const blockMousedown = (e, block, idx) => {
     // 组织默认行为和事件
     e.preventDefault();
     e.stopPropagation();
@@ -40,6 +48,9 @@ export function useFocus(data, callback) {
       }
     }
 
+    // 更新最后一个选中的组件索引
+    selectLastIdx.value = idx;
+
     // 执行回调函数
     callback && callback(e);
   };
@@ -49,12 +60,15 @@ export function useFocus(data, callback) {
     // 优化体验，没有按住ctrl键点击内容区时才清空组件选中状态，防止误点导致前面多选的状态都被清空
     if (!e.ctrlKey) {
       clearBlockFocus();
+      // 重置点选的最后一个组件索引
+      selectLastIdx.value = -1;
     }
   };
 
   // 返回内容
   return {
     focusData,
+    lastSelectBlock,
     blockMousedown,
     containerMousedown,
   };

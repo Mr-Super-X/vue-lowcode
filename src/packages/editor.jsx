@@ -42,16 +42,18 @@ export default defineComponent({
     const { dragstart, dragend } = useMenuDragger(containerRef, data);
 
     // 2.实现内容区组件获取焦点，选中后可能立即拖拽，回调函数会在鼠标按下时调用
-    const { containerMousedown, blockMousedown, focusData } = useFocus(
-      data,
-      (e) => {
+    const { containerMousedown, blockMousedown, focusData, lastSelectBlock } =
+      useFocus(data, (e) => {
         // 获取焦点后进行拖拽
         mousedown(e);
-      }
-    );
+      });
 
     // 3.实现拖拽内容区组件功能
-    const { mousedown } = useBlockDragger(focusData);
+    const { mousedown, markLine } = useBlockDragger(
+      focusData,
+      lastSelectBlock,
+      data
+    );
 
     return () => (
       <div class="editor">
@@ -84,13 +86,28 @@ export default defineComponent({
               onMousedown={containerMousedown}
             >
               {/* 动态渲染所有内容块 */}
-              {data.value.blocks.map((block) => (
+              {data.value.blocks.map((block, idx) => (
                 <EditorBlock
                   block={block}
                   class={block.focus ? "editor-block-focus" : ""}
-                  onMousedown={(e) => blockMousedown(e, block)}
+                  onMousedown={(e) => blockMousedown(e, block, idx)}
                 ></EditorBlock>
               ))}
+
+              {/* 动态显示横向辅助线 */}
+              {markLine.y !== null && (
+                <div
+                  class="editor-container__line-y"
+                  style={{ top: markLine.y + "px" }}
+                ></div>
+              )}
+              {/* 动态显示纵向辅助线 */}
+              {markLine.x !== null && (
+                <div
+                  class="editor-container__line-x"
+                  style={{ left: markLine.x + "px" }}
+                ></div>
+              )}
             </div>
           </div>
         </div>

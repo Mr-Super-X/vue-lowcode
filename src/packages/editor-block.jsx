@@ -31,6 +31,10 @@ export default defineComponent({
         // 重置状态
         props.block.alignCenter = false;
       }
+
+      // 渲染组件后给组件添加宽高，有宽高才可以计算辅助线怎么对齐
+      props.block.width = offsetWidth;
+      props.block.height = offsetHeight;
     });
 
     return () => {
