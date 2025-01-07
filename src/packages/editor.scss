@@ -11,6 +11,7 @@
     background-color: red;
   }
 
+  /* 左侧预览组件区 */
   &-left {
     left: 0;
     &-item {
@@ -46,18 +47,41 @@
     }
   }
 
+  /* 右侧属性编辑器区 */
   &-right {
     right: 0;
   }
 
+  /* 顶部工具栏 */
   &-top {
     position: absolute;
     left: 280px;
     right: 280px;
     height: 80px;
-    background-color: blue;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &-button {
+      width: 60px;
+      height: 60px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      background-color: rgba($color: #000000, $alpha: 0.3);
+      margin-right: 5px;
+      cursor: pointer;
+      user-select: none;
+
+      &:last-of-type {
+        margin-right: 0;
+      }
+    }
   }
 
+  /* 主体内容区 */
   &-container {
     padding: 80px 280px 0;
     height: 100%;

@@ -1,18 +1,20 @@
 import { reactive } from "vue";
+import { mittEvents } from "./events";
 
 export function useBlockDragger(focusData, lastSelectBlock, data) {
   // 记录容器内选中元素的位置
   let dragState = {
-    startX: 0,
-    startY: 0,
-    startLeft: 0,
-    startTop: 0,
+    startX: 0, // 鼠标相对于可视窗口的初始clientX
+    startY: 0, // 鼠标相对于可视窗口的初始clientY
+    startLeft: 0, // 元素的初始left值
+    startTop: 0, // 元素的初始top值
     startPosition: [], // 选中的所有元素当前top和left位置信息
     lines: {
       // 辅助线
       x: [], // 存储纵向辅助线
       y: [], // 存储横向辅助线
     },
+    dragging: false, // 当前是否正在拖拽
   };
 
   // 将辅助线变为响应式，动态更新显示
@@ -24,6 +26,13 @@ export function useBlockDragger(focusData, lastSelectBlock, data) {
   // 鼠标按住选中组件在容器内移动时，更新选中组件的位置信息
   const mousemove = (e) => {
     let { clientX: moveX, clientY: moveY } = e;
+
+    // 状态修改为正在拖拽中，并派发事件
+    if (!dragState.dragging) {
+      dragState.dragging = true;
+      // 派发事件，记住拖拽前的位置，用于实现撤回操作
+      mittEvents.emit("start");
+    }
 
     // 拖拽组件移动时，计算当前组件最新的left和top，去辅助线里面找到对应的线进行显示
     // left = 鼠标移动后 - 鼠标移动前 + left
@@ -96,12 +105,13 @@ export function useBlockDragger(focusData, lastSelectBlock, data) {
       top: BTop,
     } = lastSelectBlock.value;
 
-    // 在容器内鼠标按下时，记录选中组件的位置
+    // 在容器内鼠标按下时，记录选中组件的位置信息
     dragState = {
-      startX: e.clientX,
-      startY: e.clientY,
+      startX: e.clientX, // 记录鼠标相对于可视窗口的clientX
+      startY: e.clientY, // 记录鼠标相对于可视窗口的clientY
       startLeft: BLeft, // B组件拖拽前的左侧位置
       startTop: BTop, // B组件拖拽前的顶部位置
+      dragging: false, // 鼠标按下时，设置状态为false，拖动时更新为true，用于实现撤销重做记录开关
       startPosition: focusData.value.focus.map(({ top, left }) => ({
         top,
         left,
@@ -200,6 +210,11 @@ export function useBlockDragger(focusData, lastSelectBlock, data) {
     // 鼠标松开后去除辅助线
     markLine.y = null;
     markLine.x = null;
+
+    // 如果点击立马松开鼠标没有发生拖动，则不会触发事件（在mousemove事件中触发修改dragging的状态）
+    if (dragState.dragging) {
+      mittEvents.emit("end");
+    }
   };
 
   return {

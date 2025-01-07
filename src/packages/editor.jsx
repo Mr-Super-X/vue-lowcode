@@ -2,6 +2,7 @@ import { ref, computed, defineComponent, inject } from "vue";
 import { useMenuDragger } from "./useMenuDragger";
 import { useFocus } from "./useFocus";
 import { useBlockDragger } from "./useBlockDragger";
+import { useCommand } from "./useCommand";
 import deepcopy from "deepcopy";
 
 // 引入样式
@@ -55,6 +56,26 @@ export default defineComponent({
       data
     );
 
+    // 4.实现撤销重做等命令功能
+    const { commands } = useCommand(data);
+
+    const buttons = [
+      {
+        label: "撤销",
+        icon: "icon-back",
+        handler() {
+          commands.undo();
+        },
+      },
+      {
+        label: "重做",
+        icon: "icon-forward",
+        handler() {
+          commands.redo();
+        },
+      },
+    ];
+
     return () => (
       <div class="editor">
         {/* 负责左侧预览组件 */}
@@ -73,7 +94,16 @@ export default defineComponent({
           ))}
         </div>
         {/* 负责顶部菜单栏 */}
-        <div class="editor-top">菜单栏</div>
+        <div class="editor-top">
+          {buttons.map((button, idx) => {
+            return (
+              <div class="editor-top-button" onClick={button.handler}>
+                <i class={button.icon}></i>
+                <span class="editor-top-button__label">{button.label}</span>
+              </div>
+            );
+          })}
+        </div>
         <div class="editor-right">右侧属性区</div>
         <div class="editor-container">
           {/* 负责产生滚动条 */}

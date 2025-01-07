@@ -1,3 +1,5 @@
+import { mittEvents } from "./events";
+
 export function useMenuDragger(containerRef, data) {
   // 当前拖拽组件是谁
   let currentComponent = null;
@@ -31,8 +33,14 @@ export function useMenuDragger(containerRef, data) {
     currentComponent = null;
   };
 
-  // 拖拽左侧组件时，给容器绑定各种事件
+  // 开始拖拽左侧组件时，给容器绑定各种事件
   const dragstart = (e, component) => {
+    // 设置拖拽元素的位置，可以显示图片或者自身dom，50,50表示无论从哪里开始拖，始终从中间开始截取拖动图像
+    e.dataTransfer.setDragImage(e.target, 50, 50);
+
+    // 拖拽前发布start事件，用于记录拖拽前的状态，实现撤销操作
+    mittEvents.emit("start");
+
     // dragenter 进入目标元素 添加移动标识
     // dragover 经过目标元素（必须要阻止默认行为，否则无法触发drop）
     // dragleave 离开目标元素 增加禁用标识
@@ -52,6 +60,9 @@ export function useMenuDragger(containerRef, data) {
     containerRef.value.removeEventListener("dragover", dragover);
     containerRef.value.removeEventListener("dragleave", dragleave);
     containerRef.value.removeEventListener("drop", drop);
+
+    // 拖拽后发布end事件，用于记录拖拽后的状态，实现重做操作
+    mittEvents.emit("end");
   };
 
   // 返回内容
