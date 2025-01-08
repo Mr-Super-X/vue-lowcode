@@ -10,6 +10,7 @@ import deepcopy from "deepcopy";
 import "./editor.scss";
 // 引入内容块组件
 import EditorBlock from "./editor-block";
+import { ElButton } from "element-plus";
 
 export default defineComponent({
   // 定义组件的props
@@ -18,6 +19,12 @@ export default defineComponent({
   },
   emits: ["update:modelValue"], // 要触发的事件
   setup(props, ctx) {
+    // 预览的时候内容不可操作，可以点击输入内容，方便看效果
+    const previewRef = ref(false);
+    // 当前是否为编辑状态，通过控制它来实现发布编辑好的结果
+    const editorRef = ref(true);
+
+    // 数据源
     const data = computed({
       get() {
         return props.modelValue;
@@ -44,11 +51,16 @@ export default defineComponent({
     const { dragstart, dragend } = useMenuDragger(containerRef, data);
 
     // 2.实现内容区组件获取焦点，选中后可能立即拖拽，回调函数会在鼠标按下时调用
-    const { containerMousedown, blockMousedown, focusData, lastSelectBlock } =
-      useFocus(data, (e) => {
-        // 获取焦点后进行拖拽
-        mousedown(e);
-      });
+    const {
+      containerMousedown,
+      blockMousedown,
+      clearBlockFocus,
+      focusData,
+      lastSelectBlock,
+    } = useFocus(data, previewRef, (e) => {
+      // 获取焦点后进行拖拽
+      mousedown(e);
+    });
 
     // 3.实现拖拽内容区组件功能
     const { mousedown, markLine } = useBlockDragger(
@@ -124,74 +136,125 @@ export default defineComponent({
           commands.delete();
         },
       },
+      {
+        label: () => (previewRef.value ? "编辑" : "预览"),
+        icon: () => (previewRef.value ? "icon-edit" : "icon-preview"),
+        handler() {
+          previewRef.value = !previewRef.value; // 切换编辑和预览状态
+          clearBlockFocus(); // 预览点击清空选中状态
+        },
+      },
+      {
+        label: "关闭",
+        icon: "icon-close",
+        handler() {
+          editorRef.value = false; // 关闭编辑器
+          clearBlockFocus(); // 预览点击清空选中状态
+        },
+      },
     ];
 
-    return () => (
-      <div class="editor">
-        {/* 负责左侧预览组件 */}
-        <div class="editor-left">
-          {/* 根据注册列表渲染预览内容，实现h5的拖拽 */}
-          {config.componentList.map((component) => (
-            <div
-              class="editor-left-item"
-              draggable
-              onDragstart={(e) => dragstart(e, component)}
-              onDragend={dragend}
-            >
-              <span>{component.label}</span>
-              <div>{component.preview()}</div>
-            </div>
-          ))}
-        </div>
-        {/* 负责顶部菜单栏 */}
-        <div class="editor-top">
-          {buttons.map((button, idx) => {
-            return (
-              <div class="editor-top-button" onClick={button.handler}>
-                <i class={button.icon}></i>
-                <span class="editor-top-button__label">{button.label}</span>
+    return () =>
+      !editorRef.value ? (
+        <>
+          {/* 关闭状态下仅渲染预览区 */}
+          <div
+            class="editor-container-canvas__content"
+            style={{ ...containerStyles.value, margin: 0 }}
+          >
+            {/* 动态渲染所有内容块 */}
+            {data.value.blocks.map((block, idx) => (
+              <EditorBlock
+                block={block}
+                class="editor-block-preview"
+              ></EditorBlock>
+            ))}
+          </div>
+          <div class="editor-btn-back">
+            <ElButton type="primary" onClick={() => (editorRef.value = true)}>
+              返回编辑
+            </ElButton>
+          </div>
+        </>
+      ) : (
+        /* 非关闭状态下渲染完整功能 */
+        <div class="editor">
+          {/* 负责左侧预览组件 */}
+          <div class="editor-left">
+            {/* 根据注册列表渲染预览内容，实现h5的拖拽 */}
+            {config.componentList.map((component) => (
+              <div
+                class="editor-left-item"
+                draggable
+                onDragstart={(e) => dragstart(e, component)}
+                onDragend={dragend}
+              >
+                <span>{component.label}</span>
+                <div>{component.preview()}</div>
               </div>
-            );
-          })}
-        </div>
-        <div class="editor-right">右侧属性区</div>
-        <div class="editor-container">
-          {/* 负责产生滚动条 */}
-          <div class="editor-container-canvas">
-            {/* 负责产生内容区 */}
-            <div
-              class="editor-container-canvas__content"
-              style={containerStyles.value}
-              ref={containerRef}
-              onMousedown={containerMousedown}
-            >
-              {/* 动态渲染所有内容块 */}
-              {data.value.blocks.map((block, idx) => (
-                <EditorBlock
-                  block={block}
-                  class={block.focus ? "editor-block-focus" : ""}
-                  onMousedown={(e) => blockMousedown(e, block, idx)}
-                ></EditorBlock>
-              ))}
+            ))}
+          </div>
+          {/* 负责顶部菜单栏 */}
+          <div class="editor-top">
+            {buttons.map((button, idx) => {
+              // 动态获取icon
+              const icon =
+                typeof button.icon === "function" ? button.icon() : button.icon;
+              // 动态获取label
+              const label =
+                typeof button.label === "function"
+                  ? button.label()
+                  : button.label;
 
-              {/* 动态显示横向辅助线 */}
-              {markLine.y !== null && (
-                <div
-                  class="editor-container__line-y"
-                  style={{ top: markLine.y + "px" }}
-                ></div>
-              )}
-              {/* 动态显示纵向辅助线 */}
-              {markLine.x !== null && (
-                <div
-                  class="editor-container__line-x"
-                  style={{ left: markLine.x + "px" }}
-                ></div>
-              )}
+              return (
+                <div class="editor-top-button" onClick={button.handler}>
+                  <i class={icon}></i>
+                  <span class="editor-top-button__label">{label}</span>
+                </div>
+              );
+            })}
+          </div>
+          <div class="editor-right">右侧属性区</div>
+          <div class="editor-container">
+            {/* 负责产生滚动条 */}
+            <div class="editor-container-canvas">
+              {/* 负责产生内容区 */}
+              <div
+                class="editor-container-canvas__content"
+                style={containerStyles.value}
+                ref={containerRef}
+                onMousedown={containerMousedown}
+              >
+                {/* 动态渲染所有内容块 */}
+                {data.value.blocks.map((block, idx) => (
+                  <EditorBlock
+                    block={block}
+                    class={[
+                      block.focus ? "editor-block-focus" : "",
+                      previewRef.value ? "editor-block-preview" : "",
+                    ]}
+                    onMousedown={(e) => blockMousedown(e, block, idx)}
+                  ></EditorBlock>
+                ))}
+
+                {/* 动态显示横向辅助线 */}
+                {markLine.y !== null && (
+                  <div
+                    class="editor-container__line-y"
+                    style={{ top: markLine.y + "px" }}
+                  ></div>
+                )}
+                {/* 动态显示纵向辅助线 */}
+                {markLine.x !== null && (
+                  <div
+                    class="editor-container__line-x"
+                    style={{ left: markLine.x + "px" }}
+                  ></div>
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    );
+      );
   },
 });

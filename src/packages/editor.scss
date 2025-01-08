@@ -115,26 +115,37 @@
       border: 1px dashed red;
     }
   }
-}
 
-.editor-block {
-  position: absolute;
-
-  // 模拟元素浮层
-  &::after {
-    content: "";
+  /* 内容区块 */
+  &-block {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-  }
-}
 
-.editor-block-focus {
-  // focus时给模拟元素添加样式
-  &::after {
-    content: "";
-    border: 2px dashed red;
+    // 模拟元素浮层
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+
+    // 选中
+    &-focus {
+      // focus时给模拟元素添加样式
+      &::after {
+        content: "";
+        border: 2px dashed red;
+      }
+    }
+
+    // 预览
+    &-preview {
+      // 预览时隐藏模拟元素浮层
+      &::after {
+        content: "";
+        display: none;
+      }
+    }
   }
 }
