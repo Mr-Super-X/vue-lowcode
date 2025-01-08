@@ -117,6 +117,13 @@ export default defineComponent({
           commands.placeBottom();
         },
       },
+      {
+        label: "删除",
+        icon: "icon-delete",
+        handler() {
+          commands.delete();
+        },
+      },
     ];
 
     return () => (

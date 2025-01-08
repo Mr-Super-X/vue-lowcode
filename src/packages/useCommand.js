@@ -235,9 +235,33 @@ export function useCommand(data, focusData) {
     },
   });
 
+  // 注册删除命令（也要支持撤销重做）
+  registry({
+    name: "delete",
+    keyboard: "backspace|delete",
+    pushQueue: true, // 希望将操作放到队列中，可以增加该属性，标识等会操作要放到队列中
+    execute() {
+      // 记录旧值和新值，实现撤销重做
+      const state = {
+        before: deepcopy(data.value.blocks),
+        after: focusData.value.unfocus, // 选中的都删除了，留下的就是没选中的
+      };
+      return {
+        redo() {
+          data.value = { ...data.value, blocks: state.after };
+        },
+        undo() {
+          data.value = { ...data.value, blocks: state.before };
+        },
+      };
+    },
+  });
+
   // 键盘事件
   const keyboardEvents = (() => {
     const keyCodes = {
+      8: "backspace",
+      46: "delete",
       89: "y",
       90: "z",
       // ...
@@ -262,8 +286,17 @@ export function useCommand(data, focusData) {
         // 没有键盘事件就拉倒
         if (!keyboard) return;
 
-        // 匹配快捷键
-        if (keyboard === keyString) {
+        // 支持以"backspace|delete"形式配置多个快捷键
+        const regex = /^([a-zA-Z]+(\|[a-zA-Z]+)*)$/;
+        let multiple = false;
+
+        // 校验配置多个快捷键格式是否满足要求
+        if (regex.test(keyboard)) {
+          multiple = true;
+        }
+
+        // 匹配快捷键，先看是不是配置多个快捷键，再看单个组合快捷键是否匹配
+        if (multiple ? keyboard.includes(keyString) : keyboard === keyString) {
           // 执行对应命令
           state.commands[name]();
 
