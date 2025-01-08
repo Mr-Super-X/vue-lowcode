@@ -3,6 +3,7 @@ import { useMenuDragger } from "./useMenuDragger";
 import { useFocus } from "./useFocus";
 import { useBlockDragger } from "./useBlockDragger";
 import { useCommand } from "./useCommand";
+import { $dialog } from "../components/Dialog";
 import deepcopy from "deepcopy";
 
 // 引入样式
@@ -59,6 +60,7 @@ export default defineComponent({
     // 4.实现撤销重做等命令功能
     const { commands } = useCommand(data);
 
+    // 操作按钮
     const buttons = [
       {
         label: "撤销",
@@ -72,6 +74,33 @@ export default defineComponent({
         icon: "icon-forward",
         handler() {
           commands.redo();
+        },
+      },
+      {
+        label: "导出",
+        icon: "icon-export",
+        handler() {
+          $dialog({
+            title: "导出json",
+            content: JSON.stringify(data.value),
+          });
+        },
+      },
+      {
+        label: "导入",
+        icon: "icon-import",
+        handler() {
+          $dialog({
+            title: "导入json",
+            footer: true, // 显示footer
+            content: "",
+            onConfirm(jsonText) {
+              // data.value = JSON.parse(json); // 不能直接赋值，无法撤销重做
+              const json = JSON.parse(jsonText);
+              // 调用命令更新数据，命令中记录了数据变化，所以能实现撤销重做
+              commands.updateContainer(json);
+            },
+          });
         },
       },
     ];

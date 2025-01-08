@@ -17,8 +17,8 @@ export function useCommand(data) {
     // 将命令存到数组中
     state.commandArray.push(command);
     // 制作命令和功能的映射表 规则为命令的name对应命令的执行函数
-    state.commands[command.name] = () => {
-      const { redo, undo } = command.execute();
+    state.commands[command.name] = (...args) => {
+      const { redo, undo } = command.execute(...args);
 
       redo();
 
@@ -130,6 +130,27 @@ export function useCommand(data) {
         undo() {
           // 存储前一步状态，实现撤销
           data.value = { ...data.value, blocks: before };
+        },
+      };
+    },
+  });
+
+  // 注册容器更新命令（导入json渲染也要支持撤销重做）
+  registry({
+    name: "updateContainer",
+    pushQueue: true, // 希望将操作放到队列中，可以增加该属性，标识等会操作要放到队列中
+    execute(newValue) {
+      // 记录旧值和新值，实现撤销重做
+      const state = {
+        before: data.value,
+        after: newValue,
+      };
+      return {
+        redo() {
+          data.value = state.after;
+        },
+        undo() {
+          data.value = state.before;
         },
       };
     },
