@@ -2,7 +2,7 @@ import deepcopy from "deepcopy";
 import { mittEvents } from "./events";
 import { onUnmounted } from "vue";
 
-export function useCommand(data) {
+export function useCommand(data, focusData) {
   const state = {
     // 撤销重做需要指针
     current: -1, // 前进后退索引
@@ -151,6 +151,85 @@ export function useCommand(data) {
         },
         undo() {
           data.value = state.before;
+        },
+      };
+    },
+  });
+
+  // 注册置顶命令（也要支持撤销重做）
+  registry({
+    name: "placeTop",
+    pushQueue: true, // 希望将操作放到队列中，可以增加该属性，标识等会操作要放到队列中
+    execute() {
+      // 记录旧值和新值，实现撤销重做
+      const state = {
+        before: deepcopy(data.value.blocks), // 深拷贝一份，否则由于前后引用一致，不会触发响应式更新
+        after: (() => {
+          // 置顶就是在所有的block中找到最大的z-index + 1
+          const { focus, unfocus } = focusData.value;
+
+          // 找到z-index最大的block
+          const maxZIndex = unfocus.reduce((prev, block) => {
+            return Math.max(prev, block.zIndex);
+          }, -Infinity);
+
+          // 置顶当前选中的block，让它比最大的z-index还要大1
+          focus.forEach((block) => (block.zIndex = maxZIndex + 1));
+
+          // 返回最新值
+          return data.value.blocks;
+        })(),
+      };
+      return {
+        redo() {
+          data.value = { ...data.value, blocks: state.after };
+        },
+        undo() {
+          data.value = { ...data.value, blocks: state.before };
+        },
+      };
+    },
+  });
+
+  // 注册置底命令（也要支持撤销重做）
+  registry({
+    name: "placeBottom",
+    pushQueue: true, // 希望将操作放到队列中，可以增加该属性，标识等会操作要放到队列中
+    execute() {
+      // 记录旧值和新值，实现撤销重做
+      const state = {
+        before: deepcopy(data.value.blocks), // 深拷贝一份，否则由于前后引用一致，不会触发响应式更新
+        after: (() => {
+          // 置底就是在所有的block中找到最小的z-index - 1
+          const { focus, unfocus } = focusData.value;
+
+          // 找到z-index最小的block，如果它是0，-1就会变成负值
+          let minZIndex =
+            unfocus.reduce((prev, block) => {
+              return Math.min(prev, block.zIndex);
+            }, Infinity) - 1;
+
+          // 置底当前选中的block
+          // 不能直接减1，出现负值可能导致block无法选中或不可见，当minZIndex < 0 时
+          // 让所有的block层级都加上minZIndex，并让自己变成0
+          if (minZIndex < 0) {
+            const dur = Math.abs(minZIndex);
+            unfocus.forEach((block) => (block.zIndex += dur));
+            minZIndex = 0;
+          }
+          // 如果没出现负值，则让当前选中的block层级比最小的z-index减1（前面求minZIndex时已经减了，这里赋值即可）
+          focus.forEach((block) => (block.zIndex = minZIndex));
+
+          // 返回最新值
+          return data.value.blocks;
+        })(),
+      };
+      return {
+        redo() {
+          data.value = { ...data.value, blocks: state.after };
+        },
+        undo() {
+          data.value = { ...data.value, blocks: state.before };
         },
       };
     },

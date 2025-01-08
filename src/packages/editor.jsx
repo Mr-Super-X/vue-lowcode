@@ -58,7 +58,7 @@ export default defineComponent({
     );
 
     // 4.实现撤销重做等命令功能
-    const { commands } = useCommand(data);
+    const { commands } = useCommand(data, focusData);
 
     // 操作按钮
     const buttons = [
@@ -101,6 +101,20 @@ export default defineComponent({
               commands.updateContainer(json);
             },
           });
+        },
+      },
+      {
+        label: "置顶",
+        icon: "icon-place-top",
+        handler() {
+          commands.placeTop();
+        },
+      },
+      {
+        label: "置底",
+        icon: "icon-place-bottom",
+        handler() {
+          commands.placeBottom();
         },
       },
     ];
