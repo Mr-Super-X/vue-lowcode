@@ -20,9 +20,47 @@ function createEditorConfig() {
 // 导出配置
 export const registerConfig = createEditorConfig();
 
+// 生成input输入框
+const createInputProp = (label) => ({
+  type: "input",
+  label,
+});
+
+// 生成颜色选择器
+const createColorProp = (label) => ({
+  type: "color",
+  label,
+});
+
+// 生成下拉菜单
+const createSelectProp = (label, options) => ({
+  type: "select",
+  label,
+  options,
+});
+
+// 注册物料
 registerConfig.register({
   key: "text",
   label: "文本",
+  props: {
+    text: createInputProp("文本内容"),
+    color: createColorProp("文本颜色"),
+    size: createSelectProp("字体大小", [
+      { label: "14px", value: "14" },
+      { label: "16px", value: "16" },
+      { label: "18px", value: "18" },
+      { label: "20px", value: "20" },
+      { label: "22px", value: "22" },
+      { label: "24px", value: "24" },
+      { label: "26px", value: "26" },
+      { label: "28px", value: "28" },
+      { label: "30px", value: "30" },
+      { label: "32px", value: "32" },
+      { label: "34px", value: "34" },
+      { label: "36px", value: "36" },
+    ]),
+  },
   preview() {
     return "预览文本";
   },
@@ -34,6 +72,24 @@ registerConfig.register({
 registerConfig.register({
   key: "button",
   label: "按钮",
+  props: {
+    text: createInputProp("按钮内容"),
+    type: createSelectProp("按钮类型", [
+      { label: "基础", value: "plain" },
+      { label: "主要", value: "primary" },
+      { label: "成功", value: "success" },
+      { label: "警告", value: "warning" },
+      { label: "危险", value: "danger" },
+      { label: "文本", value: "text" },
+    ]),
+    size: createSelectProp("按钮尺寸", [
+      { label: "默认", value: "" },
+      { label: "大的", value: "large" },
+      { label: "中等", value: "medium" },
+      { label: "小的", value: "small" },
+      { label: "超小", value: "mini" },
+    ]),
+  },
   preview() {
     return <ElButton>预览按钮</ElButton>;
   },

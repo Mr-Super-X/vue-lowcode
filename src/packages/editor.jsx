@@ -12,6 +12,8 @@ import deepcopy from "deepcopy";
 import "./editor.scss";
 // 引入内容块组件
 import EditorBlock from "./editor-block";
+// 引入右侧属性操作栏组件
+import EditorOperator from "./editor-operator";
 
 export default defineComponent({
   // 定义组件的props
@@ -280,7 +282,13 @@ export default defineComponent({
               );
             })}
           </div>
-          <div class="editor-right">右侧属性区</div>
+          <div class="editor-right">
+            {/* 负责右侧属性菜单 */}
+            <EditorOperator
+              block={lastSelectBlock.value}
+              data={data.value}
+            ></EditorOperator>
+          </div>
           <div class="editor-container">
             {/* 负责产生滚动条 */}
             <div class="editor-container-canvas">
