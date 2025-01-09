@@ -1,3 +1,4 @@
+import deepcopy from "deepcopy";
 import {
   ElButton,
   ElColorPicker,
@@ -8,24 +9,58 @@ import {
   ElOption,
   ElSelect,
 } from "element-plus";
-import { defineComponent, inject } from "vue";
+import { defineComponent, inject, reactive, watch } from "vue";
 
 export default defineComponent({
   props: {
     block: {
       // 用户最后选中的block
       type: Object,
-      required: true,
     },
     data: {
       // 当前所有的数据
       type: Object,
-      required: true,
+    },
+    updateContainer: {
+      // 更新容器属性的方法
+      type: Function,
+    },
+    updateBlock: {
+      // 更新组件block的方法
+      type: Function,
     },
   },
   setup(props, ctx) {
     // 注入组件的配置信息
     const config = inject("config");
+
+    const state = reactive({
+      editData: {},
+    });
+
+    const handleReset = () => {
+      // 如果block不存在，说明当前要绑定容器的属性，反之绑定block的属性
+      if (!props.block) {
+        state.editData = deepcopy(props.data.container);
+      } else {
+        state.editData = deepcopy(props.block);
+      }
+    };
+
+    const handleApply = () => {
+      if (!props.block) {
+        // 更新组件容器的属性配置
+        props.updateContainer({ ...props.data, container: state.editData }); // 保留原数据，更新container
+      } else {
+        // 更新组件的属性配置
+        props.updateBlock(state.editData, props.block); // 传入更新的数据和老的数据
+      }
+    };
+
+    // 监控block是否存在，如果block不存在，说明当前要绑定容器的属性，反之绑定block的属性
+    watch(() => props.block, handleReset, {
+      immediate: true,
+    });
 
     return () => {
       const content = [];
@@ -35,10 +70,10 @@ export default defineComponent({
         content.push(
           <>
             <ElFormItem label="容器宽度">
-              <ElInputNumber />
+              <ElInputNumber v-model={state.editData.width} />
             </ElFormItem>
             <ElFormItem label="容器高度">
-              <ElInputNumber />
+              <ElInputNumber v-model={state.editData.height} />
             </ElFormItem>
           </>
         );
@@ -51,11 +86,20 @@ export default defineComponent({
             Object.entries(component.props).map(([propName, propConfig]) => {
               return (
                 <ElFormItem label={propConfig.label}>
+                  {/* 动态渲染一个对象，通过object[propConfig.type]()来调用具体方法如input来渲染input */}
                   {{
-                    input: () => <ElInput></ElInput>,
-                    color: () => <ElColorPicker></ElColorPicker>,
+                    input: () => (
+                      <ElInput
+                        v-model={state.editData.props[propName]}
+                      ></ElInput>
+                    ),
+                    color: () => (
+                      <ElColorPicker
+                        v-model={state.editData.props[propName]}
+                      ></ElColorPicker>
+                    ),
                     select: () => (
-                      <ElSelect>
+                      <ElSelect v-model={state.editData.props[propName]}>
                         {propConfig.options.map((opt) => (
                           <ElOption
                             label={opt.label}
@@ -76,8 +120,12 @@ export default defineComponent({
         <ElForm label-position="top" class="editor-right-form">
           {content}
           <ElFormItem>
-            <ElButton type="primary">应用</ElButton>
-            <ElButton type="plain">重置</ElButton>
+            <ElButton type="primary" onClick={() => handleApply()}>
+              应用
+            </ElButton>
+            <ElButton type="default" onClick={handleReset}>
+              重置
+            </ElButton>
           </ElFormItem>
         </ElForm>
       );

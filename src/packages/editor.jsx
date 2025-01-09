@@ -285,8 +285,10 @@ export default defineComponent({
           <div class="editor-right">
             {/* 负责右侧属性菜单 */}
             <EditorOperator
-              block={lastSelectBlock.value}
-              data={data.value}
+              block={lastSelectBlock.value} // 传入最后一个点击的block数据
+              data={data.value} // 传入全部数据
+              updateContainer={commands.updateContainer} // 传入更新容器的事件
+              updateBlock={commands.updateBlock} // 传入更新block的事件
             ></EditorOperator>
           </div>
           <div class="editor-container">

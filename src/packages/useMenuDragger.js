@@ -26,6 +26,7 @@ export function useMenuDragger(containerRef, data) {
           key: currentComponent.key,
           zIndex: 1,
           alignCenter: true, // 希望松手的时候渲染元素居中
+          props: {},
         },
       ],
     };

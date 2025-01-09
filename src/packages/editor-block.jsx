@@ -41,7 +41,9 @@ export default defineComponent({
       // 找到组件
       const component = config.componentMap[props.block.key];
       // 拿到要渲染的真实组件
-      const RenderComponent = component.render();
+      const RenderComponent = component.render({
+        props: props.block.props, // 将组件的props传递过去，registerConfig的render方法中则可以使用
+      });
       return (
         <div class="editor-block" style={blockStyles.value} ref={blockRef}>
           {/* 这里不能使用标签形式来渲染，如<RenderComponent /> */}
