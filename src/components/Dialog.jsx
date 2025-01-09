@@ -32,7 +32,7 @@ const DialogComponent = defineComponent({
     const handleConfirm = () => {
       state.isShow = false;
       // 执行确认回调函数
-      props.options.onConfirm && props.options.onConfirm(state.options.content);
+      state.options.onConfirm && state.options.onConfirm(state.options.content);
     };
 
     return () => (

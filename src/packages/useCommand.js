@@ -156,6 +156,38 @@ export function useCommand(data, focusData) {
     },
   });
 
+  // 注册单个节点更新命令（导入json渲染也要支持撤销重做）
+  registry({
+    name: "updateBlock",
+    pushQueue: true, // 希望将操作放到队列中，可以增加该属性，标识等会操作要放到队列中
+    execute(newBlock, oldBlock) {
+      // 记录旧值和新值，实现撤销重做
+      const state = {
+        before: data.value.blocks,
+        after: (() => {
+          const blocks = [...data.value.blocks]; // 拷贝，不能直接引用
+          // 找到旧的block在blocks中的索引位置，然后用新的block替换旧的
+          const index = data.value.blocks.indexOf(oldBlock);
+          // 如果找到了，则删掉旧的block，替换成新的
+          if (index > -1) {
+            blocks.splice(index, 1, newBlock);
+          }
+
+          // 返回处理后的blocks
+          return blocks;
+        })(),
+      };
+      return {
+        redo() {
+          data.value = { ...data.value, blocks: state.after };
+        },
+        undo() {
+          data.value = { ...data.value, blocks: state.before };
+        },
+      };
+    },
+  });
+
   // 注册置顶命令（也要支持撤销重做）
   registry({
     name: "placeTop",
@@ -296,7 +328,8 @@ export function useCommand(data, focusData) {
         }
 
         // 匹配快捷键，先看是不是配置多个快捷键，再看单个组合快捷键是否匹配
-        if (multiple ? keyboard.includes(keyString) : keyboard === keyString) {
+        const isMultiple = keyString && keyboard.includes(keyString);
+        if (multiple ? isMultiple : keyboard === keyString) {
           // 执行对应命令
           state.commands[name]();
 

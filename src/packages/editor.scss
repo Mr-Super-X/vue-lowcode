@@ -8,12 +8,13 @@
     top: 0;
     bottom: 0;
     width: 270px;
-    background-color: red;
+    border-radius: 4px;
   }
 
   /* 左侧预览组件区 */
   &-left {
     left: 0;
+    background-color: rgb(194, 3, 194);
     &-item {
       position: relative;
       width: 250px;
@@ -25,12 +26,15 @@
       background-color: #fff;
       padding: 20px;
       box-sizing: border-box;
+      border-radius: 4px;
+      overflow: hidden;
       cursor: move;
       > span {
         position: absolute;
         top: 0;
         left: 0;
         background-color: royalblue;
+        color: #fff;
       }
 
       /* 左侧透明蒙层，盖住预览组件，阻止默认行为 */
@@ -50,6 +54,7 @@
   /* 右侧属性编辑器区 */
   &-right {
     right: 0;
+    background-color: cadetblue;
   }
 
   /* 顶部工具栏 */
@@ -93,26 +98,27 @@
       &__content {
         position: relative;
         margin: 20px auto;
-        background-color: yellow;
+        background-color: rgb(219, 219, 182);
       }
+    }
+
+    &__line-y,
+    &__line-x {
+      position: absolute;
+      z-index: 100;
+      border: 1px dashed red;
     }
 
     // 横向辅助线
     &__line-y {
-      position: absolute;
       left: 0;
       right: 0;
-      z-index: 100;
-      border: 1px dashed red;
     }
 
     // 纵向辅助线
     &__line-x {
-      position: absolute;
       top: 0;
       bottom: 0;
-      z-index: 100;
-      border: 1px dashed red;
     }
   }
 
@@ -145,6 +151,36 @@
       &::after {
         content: "";
         display: none;
+      }
+    }
+  }
+
+  /* 右键菜单 */
+  &-dropdown {
+    position: absolute;
+    display: none;
+    background-color: #fff;
+    box-shadow: 2px 2px 5px #e5e5e5;
+    border-radius: 4px;
+    overflow: hidden;
+    &.is-show {
+      display: block;
+    }
+
+    &-item {
+      min-width: 60px;
+      line-height: 30px;
+      border-bottom: 1px solid #e5e5e5;
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+      padding: 0 20px;
+      &:hover {
+        background-color: #eee;
+      }
+
+      &:last-of-type {
+        border-bottom: none;
       }
     }
   }

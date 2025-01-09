@@ -4,13 +4,14 @@ import { useFocus } from "./useFocus";
 import { useBlockDragger } from "./useBlockDragger";
 import { useCommand } from "./useCommand";
 import { $dialog } from "../components/Dialog";
+import { $dropdown, DropdownItem } from "@/components/Dropdown";
+import { ElButton } from "element-plus";
 import deepcopy from "deepcopy";
 
 // 引入样式
 import "./editor.scss";
 // 引入内容块组件
 import EditorBlock from "./editor-block";
-import { ElButton } from "element-plus";
 
 export default defineComponent({
   // 定义组件的props
@@ -138,7 +139,7 @@ export default defineComponent({
       },
       {
         label: () => (previewRef.value ? "编辑" : "预览"),
-        icon: () => (previewRef.value ? "icon-edit" : "icon-preview"),
+        icon: () => (previewRef.value ? "icon-edit" : "icon-browse"),
         handler() {
           previewRef.value = !previewRef.value; // 切换编辑和预览状态
           clearBlockFocus(); // 预览点击清空选中状态
@@ -153,6 +154,71 @@ export default defineComponent({
         },
       },
     ];
+
+    // 6.实现鼠标右键菜单功能
+    const blockContextmenu = (e, block) => {
+      // 阻止浏览器弹出默认的右键菜单
+      e.preventDefault();
+
+      // 触发dropdown菜单
+      $dropdown({
+        el: e.target, // 以哪个元素为准产生dropdown菜单
+        renderContent: () => {
+          // 渲染内容方法
+          return (
+            <>
+              <DropdownItem
+                label="删除"
+                icon="icon-delete"
+                onClick={() => {
+                  commands.delete();
+                }}
+              ></DropdownItem>
+              <DropdownItem
+                label="置顶"
+                icon="icon-place-top"
+                onClick={() => {
+                  commands.placeTop();
+                }}
+              ></DropdownItem>
+              <DropdownItem
+                label="置底"
+                icon="icon-place-bottom"
+                onClick={() => {
+                  commands.placeBottom();
+                }}
+              ></DropdownItem>
+              <DropdownItem
+                label="查看"
+                icon="icon-browse"
+                onClick={() => {
+                  $dialog({
+                    title: "查看节点数据",
+                    content: JSON.stringify(block),
+                  });
+                }}
+              ></DropdownItem>
+              <DropdownItem
+                label="导入"
+                icon="icon-import"
+                onClick={() => {
+                  $dialog({
+                    title: "导入节点json数据",
+                    content: "",
+                    footer: true,
+                    onConfirm(jsonText) {
+                      const json = JSON.parse(jsonText);
+                      // 调用节点更新命令，传入新的数据和老的block
+                      commands.updateBlock(json, block);
+                    },
+                  });
+                }}
+              ></DropdownItem>
+            </>
+          );
+        },
+      });
+    };
 
     return () =>
       !editorRef.value ? (
@@ -234,6 +300,7 @@ export default defineComponent({
                       previewRef.value ? "editor-block-preview" : "",
                     ]}
                     onMousedown={(e) => blockMousedown(e, block, idx)}
+                    onContextmenu={(e) => blockContextmenu(e, block, idx)}
                   ></EditorBlock>
                 ))}
 
