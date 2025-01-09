@@ -82,9 +82,9 @@ registerConfig.register({
       { label: "默认", value: "default" },
       { label: "主要", value: "primary" },
       { label: "成功", value: "success" },
+      { label: "信息", value: "info" },
       { label: "警告", value: "warning" },
       { label: "危险", value: "danger" },
-      { label: "文本", value: "text" },
     ]),
     size: createSelectProp("按钮尺寸", [
       { label: "默认", value: "default" },
@@ -107,10 +107,24 @@ registerConfig.register({
 registerConfig.register({
   key: "input",
   label: "输入框",
+  // model可能有多个字段
+  // model: {
+  //   start: "开始字段",
+  //   end: "结束字段",
+  // };
+  model: {
+    // 输入框双向绑定的字段
+    default: "绑定字段", // 默认绑定到default属性上
+  },
   preview() {
     return <ElInput placeholder="预览输入框"></ElInput>;
   },
-  render() {
-    return <ElInput placeholder="渲染输入框"></ElInput>;
+  render({ props, model }) {
+    return (
+      <ElInput
+        {...model.default}
+        placeholder={props.text || "渲染输入框"}
+      ></ElInput>
+    );
   },
 });

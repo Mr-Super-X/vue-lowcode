@@ -26,7 +26,8 @@ export function useMenuDragger(containerRef, data) {
           key: currentComponent.key,
           zIndex: 1,
           alignCenter: true, // 希望松手的时候渲染元素居中
-          props: {},
+          props: {}, // props是针对所有元素的
+          model: {}, // model是针对input元素的，用于双向绑定
         },
       ],
     };

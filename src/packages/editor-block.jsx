@@ -3,6 +3,12 @@ import { ref, computed, defineComponent, inject, onMounted } from "vue";
 export default defineComponent({
   props: {
     block: {
+      // 要渲染的组件块数据
+      type: Object,
+      required: true,
+    },
+    formData: {
+      // 用户传递的formData
       type: Object,
       required: true,
     },
@@ -43,6 +49,21 @@ export default defineComponent({
       // 拿到要渲染的真实组件
       const RenderComponent = component.render({
         props: props.block.props, // 将组件的props传递过去，registerConfig的render方法中则可以使用
+        // 将组件的model传递过去，registerConfig的render方法中则可以使用，但是不能直接传，
+        // 原因是我们需要将用户传入的formData中的字段和model的default字段进行双向绑定，所以要格式化一下
+        // model: props.block.model => {default: 'username'} => {modelValue: formData.username, 'onUpdate:modelValue': (v) => formData.username = v}
+        model: Object.keys(component.model || {}).reduce((prev, modelName) => {
+          // 从block.model中取出属性名，比如输入绑定字段为username
+          const propName = props.block.model[modelName]; // username
+
+          // 格式化成双向绑定标准格式
+          prev[modelName] = {
+            modelValue: props.formData[propName], // formData[username] 如 刘德华
+            "onUpdate:modelValue": (v) => (props.formData[propName] = v),
+          };
+
+          return prev;
+        }, {}),
       });
       return (
         <div class="editor-block" style={blockStyles.value} ref={blockRef}>

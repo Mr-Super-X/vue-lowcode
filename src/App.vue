@@ -1,6 +1,6 @@
 <template>
   <div class="app">
-    <Editor v-model="state"></Editor>
+    <Editor v-model="state" :formData="formData"></Editor>
   </div>
 </template>
 
@@ -10,7 +10,13 @@ import { registerConfig as config } from "./utils/editor-config";
 import data from "./data";
 import Editor from "./packages/editor";
 
+// 编辑器渲染的数据
 const state = ref(data);
+
+const formData = ref({
+  username: "刘德华",
+  password: "123",
+});
 
 // 将组件config配置提供出去，其它任何组件都可以使用inject注入使用
 provide("config", config);

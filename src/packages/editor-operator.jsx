@@ -114,6 +114,20 @@ export default defineComponent({
             })
           );
         }
+
+        // 若该组件有model属性（针对input组件）
+        if (component && component.model) {
+          content.push(
+            Object.entries(component.model).map(([modelName, label]) => {
+              return (
+                <ElFormItem label={label}>
+                  {/* model => {default: 'username'} */}
+                  <ElInput v-model={state.editData.model[modelName]}></ElInput>
+                </ElFormItem>
+              );
+            })
+          );
+        }
       }
 
       return (

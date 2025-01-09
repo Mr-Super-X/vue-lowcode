@@ -31,7 +31,10 @@
       "left": 300,
       "zIndex": 1,
       "key": "input",
-      "props": {}
+      "props": {
+        "text": "我的输入框"
+      },
+      "model": {}
     }
   ]
 }

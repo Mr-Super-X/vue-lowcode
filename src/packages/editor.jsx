@@ -18,7 +18,8 @@ import EditorOperator from "./editor-operator";
 export default defineComponent({
   // 定义组件的props
   props: {
-    modelValue: { type: Object, required: true },
+    modelValue: { type: Object },
+    formData: { type: Object },
   },
   emits: ["update:modelValue"], // 要触发的事件
   setup(props, ctx) {
@@ -234,6 +235,7 @@ export default defineComponent({
             {data.value.blocks.map((block, idx) => (
               <EditorBlock
                 block={block}
+                formData={props.formData}
                 class="editor-block-preview"
               ></EditorBlock>
             ))}
@@ -311,6 +313,7 @@ export default defineComponent({
                     ]}
                     onMousedown={(e) => blockMousedown(e, block, idx)}
                     onContextmenu={(e) => blockContextmenu(e, block, idx)}
+                    formData={props.formData}
                   ></EditorBlock>
                 ))}
 
