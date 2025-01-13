@@ -1,5 +1,5 @@
 import { ref, computed, defineComponent, inject, onMounted } from "vue";
-import BlockResize from "./block-resize";
+import EditorBlockResize from "./editor-block-resize";
 
 export default defineComponent({
   props: {
@@ -81,10 +81,10 @@ export default defineComponent({
           {/* 判断组件是否选中，且支持修改宽高，渲染可拖拉调节宽高组件 */}
           {/* 传递block目的是为了修改当前block的宽高，传递component是为了拿到component中存放的修改条件等数据 */}
           {props.block.focus && (width || height) && (
-            <BlockResize
+            <EditorBlockResize
               block={props.block}
               component={component}
-            ></BlockResize>
+            ></EditorBlockResize>
           )}
         </div>
       );
