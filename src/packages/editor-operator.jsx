@@ -10,6 +10,7 @@ import {
   ElSelect,
 } from "element-plus";
 import { defineComponent, inject, reactive, watch } from "vue";
+import TableEditor from "./table-editor";
 
 export default defineComponent({
   props: {
@@ -107,6 +108,12 @@ export default defineComponent({
                           ></ElOption>
                         ))}
                       </ElSelect>
+                    ),
+                    table: () => (
+                      <TableEditor
+                        v-model={state.editData.props[propName]}
+                        propConfig={propConfig}
+                      ></TableEditor>
                     ),
                   }[propConfig.type]()}
                 </ElFormItem>

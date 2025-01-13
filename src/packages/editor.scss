@@ -29,6 +29,14 @@
       border-radius: 4px;
       overflow: hidden;
       cursor: move;
+
+      &__container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
       > span {
         position: absolute;
         top: 0;
@@ -156,6 +164,11 @@
         display: none;
       }
     }
+
+    // 修复el-select在容器中因为绝对定位导致的宽度丢失问题
+    .el-select {
+      min-width: 200px;
+    }
   }
 
   /* 右键菜单 */
@@ -190,7 +203,6 @@
 
   /* 范围输入 */
   &-range-input {
-    width: 230px;
     display: inline-flex;
     align-items: center;
     min-height: 30px;

@@ -2,7 +2,7 @@
 // map，key对应组件的映射关系
 
 import Range from "@/components/Range";
-import { ElButton, ElInput } from "element-plus";
+import { ElButton, ElInput, ElOption, ElSelect } from "element-plus";
 
 function createEditorConfig() {
   const componentList = [];
@@ -38,6 +38,13 @@ const createSelectProp = (label, options) => ({
   type: "select",
   label,
   options,
+});
+
+// 生成下拉选项表
+const createTableProp = (label, table) => ({
+  type: "table",
+  label,
+  table,
 });
 
 // 注册物料
@@ -156,6 +163,42 @@ registerConfig.register({
           "onUpdate:end": model.end["onUpdate:modelValue"], // @update:end
         }}
       ></Range>
+    );
+  },
+});
+
+registerConfig.register({
+  key: "select",
+  label: "下拉选择器",
+  props: {
+    options: createTableProp("下拉选项", {
+      options: [
+        {
+          label: "显示值（label）",
+          field: "label",
+        },
+        {
+          label: "绑定值（value）",
+          field: "value",
+        },
+      ],
+      key: "label", // 显示给用户的值配置字段支持，默认label，你也可以配成value
+    }), // 选项列表
+  },
+  model: {
+    // 双向绑定字段
+    default: "绑定字段",
+  },
+  preview() {
+    return <ElSelect placeholder="预览下拉框"></ElSelect>;
+  },
+  render({ props, model }) {
+    return (
+      <ElSelect {...model.default} placeholder="渲染下拉框">
+        {(props.options || []).map((opt, idx) => (
+          <ElOption label={opt.label} value={opt.value} key={idx}></ElOption>
+        ))}
+      </ElSelect>
     );
   },
 });

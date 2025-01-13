@@ -261,7 +261,9 @@ export default defineComponent({
                 onDragend={dragend}
               >
                 <span>{component.label}</span>
-                <div>{component.preview()}</div>
+                <div class="editor-left-item__container">
+                  {component.preview()}
+                </div>
               </div>
             ))}
           </div>
