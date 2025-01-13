@@ -84,6 +84,10 @@ registerConfig.register({
 registerConfig.register({
   key: "button",
   label: "按钮",
+  resize: {
+    width: true, // 表示可以更改按钮的宽度
+    height: true, // 表示可以更改按钮的高度
+  },
   props: {
     text: createInputProp("按钮内容"),
     type: createSelectProp("按钮类型", [
@@ -103,9 +107,13 @@ registerConfig.register({
   preview() {
     return <ElButton>预览按钮</ElButton>;
   },
-  render({ props }) {
+  render({ props, size }) {
     return (
-      <ElButton type={props.type} size={props.size}>
+      <ElButton
+        style={{ height: size.height + "px", width: size.width + "px" }}
+        type={props.type}
+        size={props.size}
+      >
         {props.text || "渲染按钮"}
       </ElButton>
     );
@@ -115,6 +123,9 @@ registerConfig.register({
 registerConfig.register({
   key: "input",
   label: "输入框",
+  resize: {
+    width: true, // 表示可以更改输入框的宽度
+  },
   // model可能有多个字段
   // model: {
   //   start: "开始字段",
@@ -127,9 +138,10 @@ registerConfig.register({
   preview() {
     return <ElInput placeholder="预览输入框"></ElInput>;
   },
-  render({ props, model }) {
+  render({ props, model, size }) {
     return (
       <ElInput
+        style={{ width: size.width + "px" }}
         {...model.default}
         placeholder={props.text || "渲染输入框"}
       ></ElInput>

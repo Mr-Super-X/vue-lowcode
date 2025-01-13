@@ -1,4 +1,5 @@
 import { ref, computed, defineComponent, inject, onMounted } from "vue";
+import BlockResize from "./block-resize";
 
 export default defineComponent({
   props: {
@@ -48,6 +49,10 @@ export default defineComponent({
       const component = config.componentMap[props.block.key];
       // 拿到要渲染的真实组件
       const RenderComponent = component.render({
+        // 选中元素拖拽block宽高时会接收该属性，registerConfig的render方法中通过获取该属性来修改宽高
+        size: props.block.resizing
+          ? { width: props.block.width, height: props.block.height }
+          : {},
         props: props.block.props, // 将组件的props传递过去，registerConfig的render方法中则可以使用
         // 将组件的model传递过去，registerConfig的render方法中则可以使用，但是不能直接传，
         // 原因是我们需要将用户传入的formData中的字段和model的default字段进行双向绑定，所以要格式化一下
@@ -65,10 +70,22 @@ export default defineComponent({
           return prev;
         }, {}),
       });
+
+      // 读取组件是否支持修改宽高
+      const { width, height } = component.resize || {};
+
       return (
         <div class="editor-block" style={blockStyles.value} ref={blockRef}>
           {/* 这里不能使用标签形式来渲染，如<RenderComponent /> */}
           {RenderComponent}
+          {/* 判断组件是否选中，且支持修改宽高，渲染可拖拉调节宽高组件 */}
+          {/* 传递block目的是为了修改当前block的宽高，传递component是为了拿到component中存放的修改条件等数据 */}
+          {props.block.focus && (width || height) && (
+            <BlockResize
+              block={props.block}
+              component={component}
+            ></BlockResize>
+          )}
         </div>
       );
     };
