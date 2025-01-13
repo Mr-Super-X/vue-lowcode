@@ -270,7 +270,7 @@ export function useCommand(data, focusData) {
   // 注册删除命令（也要支持撤销重做）
   registry({
     name: "delete",
-    keyboard: "backspace|delete",
+    keyboard: "delete",
     pushQueue: true, // 希望将操作放到队列中，可以增加该属性，标识等会操作要放到队列中
     execute() {
       // 记录旧值和新值，实现撤销重做
@@ -318,7 +318,7 @@ export function useCommand(data, focusData) {
         // 没有键盘事件就拉倒
         if (!keyboard) return;
 
-        // 支持以"backspace|delete"形式配置多个快捷键
+        // 支持"backspace|delete"形式，以 | 分隔配置多个快捷键
         const regex = /^([a-zA-Z]+(\|[a-zA-Z]+)*)$/;
         let multiple = false;
 

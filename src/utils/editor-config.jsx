@@ -1,6 +1,7 @@
 // 列表区，可以显示所有的物料
 // map，key对应组件的映射关系
 
+import Range from "@/components/Range";
 import { ElButton, ElInput } from "element-plus";
 
 function createEditorConfig() {
@@ -125,6 +126,36 @@ registerConfig.register({
         {...model.default}
         placeholder={props.text || "渲染输入框"}
       ></ElInput>
+    );
+  },
+});
+
+registerConfig.register({
+  key: "range",
+  label: "范围选择器",
+  // model可能有多个字段
+  // model: {
+  //   start: "开始字段",
+  //   end: "结束字段",
+  // };
+  model: {
+    // 输入框双向绑定的字段
+    start: "开始范围字段",
+    end: "结束范围字段",
+  },
+  preview() {
+    return <Range></Range>;
+  },
+  render({ props, model }) {
+    return (
+      <Range
+        {...{
+          start: model.start.modelValue,
+          "onUpdate:start": model.start["onUpdate:modelValue"], // @update:start
+          end: model.end.modelValue,
+          "onUpdate:end": model.end["onUpdate:modelValue"], // @update:end
+        }}
+      ></Range>
     );
   },
 });

@@ -245,6 +245,7 @@ export default defineComponent({
               返回编辑
             </ElButton>
           </div>
+          {JSON.stringify(props.formData)}
         </>
       ) : (
         /* 非关闭状态下渲染完整功能 */

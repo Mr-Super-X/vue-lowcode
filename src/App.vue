@@ -16,6 +16,8 @@ const state = ref(data);
 const formData = ref({
   username: "刘德华",
   password: "123",
+  start: 0,
+  end: 100,
 });
 
 // 将组件config配置提供出去，其它任何组件都可以使用inject注入使用
