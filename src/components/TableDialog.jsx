@@ -37,7 +37,9 @@ const TableDialogComponent = defineComponent({
     };
 
     // 重置
-    const handleReset = () => {};
+    const handleReset = () => {
+      state.editData = [];
+    };
 
     // 删除某一项
     const handleDeleteItem = (idx) => {
