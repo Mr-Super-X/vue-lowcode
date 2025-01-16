@@ -225,7 +225,7 @@ export default defineComponent({
 
     return () =>
       !editorRef.value ? (
-        <>
+        <div class="editor-preview-container">
           {/* 关闭状态下仅渲染预览区 */}
           <div
             class="editor-container-canvas__content"
@@ -246,7 +246,7 @@ export default defineComponent({
             </ElButton>
           </div>
           {JSON.stringify(props.formData)}
-        </>
+        </div>
       ) : (
         /* 非关闭状态下渲染完整功能 */
         <div class="editor">

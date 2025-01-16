@@ -55,5 +55,6 @@ window.ResizeObserver = class ResizeObserver extends _ResizeObserver {
   left: 20px;
   right: 20px;
   bottom: 20px;
+  overflow: auto;
 }
 </style>
